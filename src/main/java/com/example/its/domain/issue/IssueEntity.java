@@ -9,4 +9,5 @@ public class IssueEntity {
     private long id;
     private String summary;
     private String description;
+    private String status;
 }

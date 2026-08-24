@@ -22,22 +22,51 @@ public class IssueController {
     }
 
     @GetMapping("/creationForm")
-    public String showCreationForm(@ModelAttribute IssueForm form) {
+    public String showCreationForm(@ModelAttribute("issueForm") IssueForm form) {
         return "issues/creationForm";
     }
 
     @PostMapping
-    public String create(@Validated IssueForm form, BindingResult bindingResult, Model model) {
+    public String create(@Validated @ModelAttribute("issueForm") IssueForm form,
+                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return showCreationForm(form);
+            return "issues/creationForm";
         }
-        issueService.create(form.getSummary(), form.getDescription());
+        issueService.create(form.getSummary(), form.getDescription(), form.getStatus());
         return "redirect:/issues";
     }
 
     @GetMapping("/{issueId}")
     public String showDetail(@PathVariable("issueId") long issueId, Model model) {
-        model.addAttribute("issue", issueService.findById(issueId));
+        var issue = issueService.findById(issueId)
+                .orElseThrow(IssueNotFoundException::new);
+        model.addAttribute("issue", issue);
         return "issues/detail";
+    }
+
+    @GetMapping("/{issueId}/editForm")
+    public String showEditForm(@PathVariable("issueId") long issueId, Model model) {
+        var form = issueService.findById(issueId)
+                .map(IssueForm::fromEntity)
+                .orElseThrow(IssueNotFoundException::new);
+        model.addAttribute("issueForm", form);
+        return "issues/creationForm";
+    }
+
+    @PutMapping("/{issueId}")
+    public String update(@PathVariable("issueId") long issueId,
+                         @Validated @ModelAttribute("issueForm") IssueForm form,
+                         BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "issues/creationForm";
+        }
+        issueService.update(issueId, form.getSummary(), form.getDescription(), form.getStatus());
+        return "redirect:/issues/" + issueId;
+    }
+
+    @DeleteMapping("/{issueId}")
+    public String delete(@PathVariable("issueId") long issueId) {
+        issueService.delete(issueId);
+        return "redirect:/issues";
     }
 }

@@ -2,25 +2,47 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{fragments/layout :: layout(~{::title}, ~{::body})}">
 <head>
-    <title>課題作成｜IT課題管理システム</title>
+    <title th:text="${issueForm.id == null ? '課題作成｜IT課題管理システム' : '課題編集｜IT課題管理システム'}">課題作成｜IT課題管理システム</title>
 </head>
 <body>
-    <h1 class="mt-3">課題作成</h1>
-<form action="#" th:action="@{/issues}" method="post" th:object="${issueForm}">
+<h1 class="mt-3" th:text="${issueForm.id == null ? '課題作成' : '課題編集'}">課題作成</h1>
+
+<form th:action="${issueForm.id == null} ? @{/issues} : @{/issues/{id}(id=${issueForm.id})}"
+      method="post"
+      th:object="${issueForm}">
+
+    <!-- 編集時のみ PUT に切り替える指定 -->
+    <input th:if="${issueForm.id != null}" type="hidden" name="_method" value="PUT" />
+    <input type="hidden" th:field="*{id}" />
+
     <div class="mt-3">
         <label for="summaryInput" class="form-label">概要</label>
         <input type="text" id="summaryInput" th:field="*{summary}" class="form-control"
-        th:classappend="${#fields.hasErrors('summary') ? 'is-invalid' : ''}"/>
+               th:classappend="${#fields.hasErrors('summary') ? 'is-invalid' : ''}"/>
         <p class="invalid-feedback" th:if="${#fields.hasErrors('summary')}" th:errors="*{summary}">(error)</p>
     </div>
+
     <div class="mt-3">
         <label for="descriptionInput" class="form-label">説明</label>
-        <textarea id="descriptionInput" row="10" th:field="*{description}" class="form-control"
-        th:classappend="${#fields.hasErrors('description') ? 'is-invalid' : ''}"></textarea>
+        <textarea id="descriptionInput" rows="10" th:field="*{description}" class="form-control"
+                  th:classappend="${#fields.hasErrors('description') ? 'is-invalid' : ''}"></textarea>
         <p class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">(error)</p>
     </div>
+
     <div class="mt-3">
-        <button type="submit" class="btn btn-primary">作成</button>
+        <label for="statusSelect" class="form-label">ステータス</label>
+        <select id="statusSelect" th:field="*{status}" class="form-select"
+                th:classappend="${#fields.hasErrors('status') ? 'is-invalid' : ''}">
+            <option value="">選択してください</option>
+            <option value="TODO">TODO</option>
+            <option value="DOING">DOING</option>
+            <option value="DONE">DONE</option>
+        </select>
+        <p class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}">(error)</p>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary" th:text="${issueForm.id == null ? '作成' : '更新'}">送信</button>
         <a href="./list.html" th:href="@{/issues}" class="btn btn-secondary">キャンセル</a>
     </div>
 </form>

@@ -1,0 +1,16 @@
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: layout(~{::title}, ~{::body})}"
+>
+  <head>
+    <title>トップページ｜課題管理アプリケーション</title>
+  </head>
+  <body>
+<div class="text-center">
+  <h1 class="display-1">404 Not Found</h1>
+  <p>お探しのページは見つかりません</p>
+  <a th:href="@{/}" class="btn btn-primary">トップページに戻る</a>
+</div>
+  </body>
+</html>

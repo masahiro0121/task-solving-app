@@ -1,3 +1,3 @@
-insert into issues (summary, description) values ('バグA', 'バグがあります');
-insert into issues (summary, description) values ('機能要望B', 'Bに追加機能がほしいです');
-insert into issues (summary, description) values ('画面Cが遅い', '早くしてほしいです');
+insert into issues (summary, description, status) values ('バグA', 'バグがあります', 'DONE');
+insert into issues (summary, description, status) values ('機能要望B', 'Bに追加機能がほしいです', 'TODO');
+insert into issues (summary, description, status) values ('画面Cが遅い', '早くしてほしいです', 'TODO');
