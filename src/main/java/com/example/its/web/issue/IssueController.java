@@ -1,49 +1,58 @@
 package com.example.its.web.issue;
 
+import com.example.its.domain.issue.IssueDTO;
 import com.example.its.domain.issue.IssueService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/issues")
-@RequiredArgsConstructor
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/issues")
+@CrossOrigin(origins = "http://localhost:5173")
 public class IssueController {
 
     private final IssueService issueService;
 
-    @GetMapping
-    public String showList(Model model) {
-        model.addAttribute("issueList", issueService.findAll());
-        return "issues/list";
+    public IssueController(IssueService issueService) {
+        this.issueService = issueService;
     }
 
+    @GetMapping
+    public List<IssueDTO> showList() {
+        return issueService.findAll().stream()
+                .map(IssueDTO::toDTO)
+                .toList();
+    }
+
+    // React改修で不要になる
     @GetMapping("/creationForm")
     public String showCreationForm(@ModelAttribute("issueForm") IssueForm form) {
         return "issues/creationForm";
     }
 
     @PostMapping
-    public String create(@Validated @ModelAttribute("issueForm") IssueForm form,
-                         BindingResult bindingResult) {
+    public ResponseEntity<?> create(@Validated @RequestBody IssueForm form,
+                                    BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "issues/creationForm";
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
         issueService.create(form.getSummary(), form.getDescription(), form.getStatus());
-        return "redirect:/issues";
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/{issueId}")
-    public String showDetail(@PathVariable("issueId") long issueId, Model model) {
+    public IssueDTO showDetail(@PathVariable("issueId") long issueId) {
         var issue = issueService.findById(issueId)
                 .orElseThrow(IssueNotFoundException::new);
-        model.addAttribute("issue", issue);
-        return "issues/detail";
+        return IssueDTO.toDTO(issue);
     }
 
+    // React改修で不要になる
     @GetMapping("/{issueId}/editForm")
     public String showEditForm(@PathVariable("issueId") long issueId, Model model) {
         var form = issueService.findById(issueId)
@@ -54,19 +63,19 @@ public class IssueController {
     }
 
     @PutMapping("/{issueId}")
-    public String update(@PathVariable("issueId") long issueId,
-                         @Validated @ModelAttribute("issueForm") IssueForm form,
-                         BindingResult bindingResult) {
+    public ResponseEntity<?> update(@PathVariable("issueId") long issueId,
+                                    @Validated @RequestBody IssueForm form,
+                                    BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "issues/creationForm";
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
         issueService.update(issueId, form.getSummary(), form.getDescription(), form.getStatus());
-        return "redirect:/issues/" + issueId;
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{issueId}")
-    public String delete(@PathVariable("issueId") long issueId) {
+    public ResponseEntity<Void> delete(@PathVariable("issueId") long issueId) {
         issueService.delete(issueId);
-        return "redirect:/issues";
+        return ResponseEntity.noContent().build();
     }
 }
