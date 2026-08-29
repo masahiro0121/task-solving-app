@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー作成</title>
+</head>
+<body>
+<h1>ユーザー作成</h1>
+<a href="../index.html" th:href="@{/}">トップページ</a>
+<form action="#" th:action="@{/users}" method="post" th:object="${userForm}">
+    <div>
+        <label for="usernameInput">ユーザー名:</label>
+        <input type="text" id="usernameInput" th:field="*{username}" required>
+        <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+    </div>
+    <div>
+        <label for="passwordInput">パスワード:</label>
+        <input type="password" id="passwordInput" th:field="*{password}" required>
+        <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+    </div>
+    <div>
+        <label for="authorityRadio">権限</label>
+        <div id="authorityRadio">
+            <div>
+                <input type="radio" id="authorityAdminRadio" th:field="*{authority}" value="ADMIN">
+                <label for="authorityAdminRadio">ADMIN</label>
+            </div>
+            <div>
+                <input type="radio" id="authorityUserRadio" th:field="*{authority}" value="USER">
+                <label for="authorityUserRadio">USER</label>
+            </div>
+        </div>
+        <p th:if="${#fields.hasErrors('authority')}" th:errors="*{authority}"></p>
+    </div>
+    <button type="submit">作成</button>
+    <a href="./list.html" th:href="@{/users}">キャンセル</a>
+</form>
+</body>
+</html>

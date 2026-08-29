@@ -4,3 +4,9 @@ CREATE TABLE IF NOT EXISTS issues (
     description VARCHAR(256) NOT NULL,
     status VARCHAR(256) NOT NULL
     );
+
+create table users (
+    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(500) NOT NULL
+    );

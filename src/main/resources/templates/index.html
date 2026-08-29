@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+                xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>課題管理アプリケーション</title>
+</head>
+<body>
+<h1>課題管理アプリケーション</h1>
+<ul>
+    <li sec:authorize="hasAuthority('ADMIN')"><a href="./users/list.html" th:href="@{/users}">ユーザー一覧</a></li>
+    <li><a href="./logout.html" th:href="@{/logout}">ログアウト</a></li>
+</ul>
+</body>
+</html>
