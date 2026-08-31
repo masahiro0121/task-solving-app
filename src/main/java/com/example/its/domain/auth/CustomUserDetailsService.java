@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 )
                 .orElseThrow(
                         () -> new UsernameNotFoundException(
-                                "Given username not found: " + username));
+                                "指定されたユーザー名が見つかりません: " + username));
     }
 
     private List<GrantedAuthority> toGrantedAuthorityList(User.Authority authority) {

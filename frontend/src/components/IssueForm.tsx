@@ -1,51 +1,77 @@
-type IssueFormProps = {
-  // 新規作成用
-  summary: string;
-  setSummary: (val: string) => void;
-  description: string;
-  setDescription: (val: string) => void;
-  handleSubmit: (e: React.FormEvent) => void;
+import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
 
-  // 編集用
+type IssueDraft = {
+  summary: string;
+  description: string;
+  status: string;
+};
+
+type Props = {
+  onCreate: (payload: { summary: string; description: string }) => void;
+  onUpdate: (payload: {
+    summary: string;
+    description: string;
+    status: string;
+  }) => void;
   editingIssueId: number | null;
-  setEditingIssueId: (id: number | null) => void;
-  editSummary: string;
-  setEditSummary: (val: string) => void;
-  editDescription: string;
-  setEditDescription: (val: string) => void;
-  editStatus: string;
-  setEditStatus: (val: string) => void;
-  handleUpdate: (e: React.FormEvent) => void;
+  issueToEdit: IssueDraft | null;
+  onCancelEdit: () => void;
 };
 
 export const IssueForm = ({
-  summary,
-  setSummary,
-  description,
-  setDescription,
-  handleSubmit,
+  onCreate,
+  onUpdate,
   editingIssueId,
-  setEditingIssueId,
-  editSummary,
-  setEditSummary,
-  editDescription,
-  setEditDescription,
-  editStatus,
-  setEditStatus,
-  handleUpdate,
-}: IssueFormProps) => {
+  issueToEdit,
+  onCancelEdit,
+}: Props) => {
+  const [summary, setSummary] = useState('');
+  const [description, setDescription] = useState('');
+  const [editSummary, setEditSummary] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editStatus, setEditStatus] = useState('TODO');
+
+  useEffect(() => {
+    if (!issueToEdit) {
+      return;
+    }
+
+    setEditSummary(issueToEdit.summary);
+    setEditDescription(issueToEdit.description);
+    setEditStatus(issueToEdit.status);
+  }, [issueToEdit]);
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onCreate({ summary, description });
+    setSummary('');
+    setDescription('');
+  };
+
+  const handleUpdateSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingIssueId) return;
+
+    onUpdate({
+      summary: editSummary,
+      description: editDescription,
+      status: editStatus,
+    });
+    onCancelEdit();
+  };
+
   return (
     <div className="card mb-4 shadow-sm">
       <div className="card-body">
-        {/* 編集モード時のフォーム */}
-        {editingIssueId !== null ? (
+        {editingIssueId ? (
           <div>
             <h2 className="h5 card-title mb-3">
               課題編集 (ID: {editingIssueId})
             </h2>
-            <form onSubmit={handleUpdate}>
+            <form onSubmit={handleUpdateSubmit}>
               <div className="mb-3">
-                <label className="form-label">概要: </label>
+                <label className="form-label">概要</label>
                 <input
                   type="text"
                   className="form-control"
@@ -55,7 +81,7 @@ export const IssueForm = ({
                 />
               </div>
               <div className="mb-3">
-                <label className="form-label">詳細: </label>
+                <label className="form-label">詳細</label>
                 <textarea
                   className="form-control"
                   value={editDescription}
@@ -64,7 +90,7 @@ export const IssueForm = ({
                 />
               </div>
               <div className="mb-3">
-                <label className="form-label">ステータス: </label>
+                <label className="form-label">ステータス</label>
                 <select
                   className="form-select"
                   value={editStatus}
@@ -75,26 +101,24 @@ export const IssueForm = ({
                   <option value="DONE">DONE</option>
                 </select>
               </div>
-              <button type="submit" className="btn btn-primary">
+              <button type="submit" className="btn btn-primary me-2">
                 更新
               </button>
               <button
                 type="button"
                 className="btn btn-outline-secondary"
-                onClick={() => setEditingIssueId(null)}
+                onClick={onCancelEdit}
               >
                 キャンセル
               </button>
             </form>
-            <hr />
           </div>
         ) : (
-          /* 新規作成フォーム */
           <div>
             <h2 className="h5 card-title mb-3">新規課題作成</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="form-label">概要: </label>
+                <label className="form-label">概要</label>
                 <input
                   type="text"
                   className="form-control"
@@ -104,7 +128,7 @@ export const IssueForm = ({
                 />
               </div>
               <div className="mb-3">
-                <label className="form-label">詳細: </label>
+                <label className="form-label">詳細</label>
                 <textarea
                   className="form-control"
                   value={description}
@@ -116,7 +140,6 @@ export const IssueForm = ({
                 作成
               </button>
             </form>
-            <hr />
           </div>
         )}
       </div>

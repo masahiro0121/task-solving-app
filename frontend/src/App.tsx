@@ -1,70 +1,123 @@
 import './App.css';
-import { useIssues } from './hooks/useIssues';
-import { IssueForm } from './components/IssueForm';
-import { IssueDetail } from './components/IssueDetail';
-import { IssueList } from './components/IssueList';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Navbar } from './components/Navbar';
+import { useAuth } from './hooks/useAuth';
+import { LoginPage } from './pages/LoginPage';
+import { IssuesPage } from './pages/IssuesPage';
+import { UsersPage } from './pages/UsersPage';
 
-function App() {
+export function App() {
   const {
-    issues,
-    detailIssue,
-    summary,
-    setSummary,
-    description,
-    setDescription,
-    editingIssueId,
-    setEditingIssueId,
-    editSummary,
-    setEditSummary,
-    editDescription,
-    setEditDescription,
-    editStatus,
-    setEditStatus,
-    setSelectedIssueId,
-    setDetailIssue,
-    handleSubmit,
-    startEdit,
-    handleUpdate,
-    handleDelete,
-  } = useIssues();
+    isLoggedIn,
+    currentUser,
+    authority,
+    handleLoginSuccess,
+    handleLogout,
+  } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogin = async (username: string) => {
+    const isLoginSuccessful = await handleLoginSuccess(username);
+
+    if (!isLoginSuccessful) {
+      return;
+    }
+
+    navigate('/issues');
+  };
 
   return (
-    <div className="container my-5" style={{ maxWidth: '800px' }}>
-      <h1 className="mb-4 text-center fw-bold">課題管理アプリ</h1>
-
-      <IssueForm
-        summary={summary}
-        setSummary={setSummary}
-        description={description}
-        setDescription={setDescription}
-        handleSubmit={handleSubmit}
-        editingIssueId={editingIssueId}
-        setEditingIssueId={setEditingIssueId}
-        editSummary={editSummary}
-        setEditSummary={setEditSummary}
-        editDescription={editDescription}
-        setEditDescription={setEditDescription}
-        editStatus={editStatus}
-        setEditStatus={setEditStatus}
-        handleUpdate={handleUpdate}
+    <>
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        currentUser={currentUser}
+        authority={authority}
+        onLogout={handleLogout}
       />
 
-      <IssueDetail
-        detailIssue={detailIssue}
-        onClose={() => {
-          setDetailIssue(null);
-          setSelectedIssueId(null);
-        }}
-      />
+      <div className="container my-5" style={{ maxWidth: '800px' }}>
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/issues" replace />
+              ) : (
+                <LoginPage onLoginSuccess={handleLogin} />
+              )
+            }
+          />
 
-      <IssueList
-        issues={issues}
-        onSelect={(id) => setSelectedIssueId(id)}
-        onStartEdit={startEdit}
-        onDelete={handleDelete}
-      />
-    </div>
+          <Route
+            path="/issues"
+            element={
+              isLoggedIn ? (
+                <IssuesPage authority={authority} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/issues/new"
+            element={
+              isLoggedIn ? (
+                <IssuesPage authority={authority} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/issues/:id"
+            element={
+              isLoggedIn ? (
+                <IssuesPage authority={authority} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/users"
+            element={
+              isLoggedIn && authority === 'ADMIN' ? (
+                <UsersPage isLoggedIn={isLoggedIn} />
+              ) : (
+                <Navigate to={isLoggedIn ? '/issues' : '/login'} replace />
+              )
+            }
+          />
+
+          <Route
+            path="/users/new"
+            element={
+              isLoggedIn && authority === 'ADMIN' ? (
+                <UsersPage isLoggedIn={isLoggedIn} />
+              ) : (
+                <Navigate to={isLoggedIn ? '/issues' : '/login'} replace />
+              )
+            }
+          />
+
+          <Route
+            path="/"
+            element={
+              <Navigate to={isLoggedIn ? '/issues' : '/login'} replace />
+            }
+          />
+
+          <Route
+            path="*"
+            element={
+              <Navigate to={isLoggedIn ? '/issues' : '/login'} replace />
+            }
+          />
+        </Routes>
+      </div>
+    </>
   );
 }
-
-export default App;

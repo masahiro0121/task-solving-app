@@ -1,6 +1,7 @@
 package com.example.its.domain.issue;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ public class IssueService {
     }
 
     @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(long issueId) {
         issueRepository.delete(issueId);
     }

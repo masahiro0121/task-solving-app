@@ -1,32 +1,31 @@
-import axios from 'axios';
 import type { Issue } from '../types';
+import { apiClient } from './apiClient';
 
-const BASE_URL = 'http://localhost:8080/api/issues';
-
-// バックエンドへのリクエストをまとめたオブジェクト
 export const issueService = {
-  // 一覧取得
-  getAll: () => {
-    return axios.get<Issue[]>(BASE_URL).then((res) => res.data);
+  getAll: async (): Promise<Issue[]> => {
+    const response = await apiClient.get<Issue[]>('/issues');
+    return response.data;
   },
 
-  // 詳細取得
-  getById: (id: number) => {
-    return axios.get<Issue>(`${BASE_URL}/${id}`).then((res) => res.data);
+  getById: async (id: number): Promise<Issue> => {
+    const response = await apiClient.get<Issue>(`/issues/${id}`);
+    return response.data;
   },
 
-  // 新規作成
-  create: (newIssue: Omit<Issue, 'id'>) => {
-    return axios.post(BASE_URL, newIssue);
+  create: async (newIssue: Omit<Issue, 'id'>): Promise<Issue> => {
+    const response = await apiClient.post<Issue>('/issues', newIssue);
+    return response.data;
   },
 
-  // 更新
-  update: (id: number, updatedIssue: Omit<Issue, 'id'>) => {
-    return axios.put(`${BASE_URL}/${id}`, updatedIssue);
+  update: async (
+    id: number,
+    updatedIssue: Omit<Issue, 'id'>,
+  ): Promise<Issue> => {
+    const response = await apiClient.put<Issue>(`/issues/${id}`, updatedIssue);
+    return response.data;
   },
 
-  // 削除
-  delete: (id: number) => {
-    return axios.delete(`${BASE_URL}/${id}`);
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/issues/${id}`);
   },
 };

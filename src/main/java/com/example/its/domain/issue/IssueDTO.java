@@ -1,4 +1,4 @@
-package com.example.its.domain.issue; // ※後述しますが、パッケージ位置のワンポイントアドバイスがあります
+package com.example.its.domain.issue;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

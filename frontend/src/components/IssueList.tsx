@@ -1,7 +1,8 @@
 import type { Issue } from '../types';
 
-type IssueListProps = {
+type Props = {
   issues: Issue[];
+  authority: string | null;
   onSelect: (id: number) => void;
   onStartEdit: (issue: Issue) => void;
   onDelete: (id: number) => void;
@@ -9,10 +10,11 @@ type IssueListProps = {
 
 export const IssueList = ({
   issues,
+  authority,
   onSelect,
   onStartEdit,
   onDelete,
-}: IssueListProps) => {
+}: Props) => {
   return (
     <div className="card shadow-sm">
       <div className="card-body">
@@ -23,18 +25,18 @@ export const IssueList = ({
           <table className="table table-hover align-middle mb-0">
             <thead>
               <tr>
-                <th>ステータス</th>
                 <th>概要</th>
+                <th>ステータス</th>
                 <th className="text-end">操作</th>
               </tr>
             </thead>
             <tbody>
               {issues.map((issue) => (
                 <tr key={issue.id}>
+                  <td>{issue.summary}</td>
                   <td>
                     <span className="badge bg-secondary">{issue.status}</span>
                   </td>
-                  <td>{issue.summary}</td>
                   <td className="text-end">
                     <button
                       className="btn btn-sm btn-outline-primary me-2"
@@ -48,12 +50,14 @@ export const IssueList = ({
                     >
                       編集
                     </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => onDelete(issue.id)}
-                    >
-                      削除
-                    </button>
+                    {authority === 'ADMIN' && (
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => onDelete(issue.id)}
+                      >
+                        削除
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

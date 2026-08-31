@@ -4,7 +4,6 @@ import com.example.its.domain.issue.IssueDTO;
 import com.example.its.domain.issue.IssueService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,12 +28,6 @@ public class IssueController {
                 .toList();
     }
 
-    // React改修で不要になる
-    @GetMapping("/creationForm")
-    public String showCreationForm(@ModelAttribute("issueForm") IssueForm form) {
-        return "issues/creationForm";
-    }
-
     @PostMapping
     public ResponseEntity<?> create(@Validated @RequestBody IssueForm form,
                                     BindingResult bindingResult) {
@@ -50,16 +43,6 @@ public class IssueController {
         var issue = issueService.findById(issueId)
                 .orElseThrow(IssueNotFoundException::new);
         return IssueDTO.toDTO(issue);
-    }
-
-    // React改修で不要になる
-    @GetMapping("/{issueId}/editForm")
-    public String showEditForm(@PathVariable("issueId") long issueId, Model model) {
-        var form = issueService.findById(issueId)
-                .map(IssueForm::fromEntity)
-                .orElseThrow(IssueNotFoundException::new);
-        model.addAttribute("issueForm", form);
-        return "issues/creationForm";
     }
 
     @PutMapping("/{issueId}")

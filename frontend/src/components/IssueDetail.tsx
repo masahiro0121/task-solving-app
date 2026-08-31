@@ -1,11 +1,11 @@
 import type { Issue } from '../types';
 
-type IssueDetailProps = {
+type Props = {
   detailIssue: Issue | null;
   onClose: () => void;
 };
 
-export const IssueDetail = ({ detailIssue, onClose }: IssueDetailProps) => {
+export const IssueDetail = ({ detailIssue, onClose }: Props) => {
   if (!detailIssue) return null;
 
   return (

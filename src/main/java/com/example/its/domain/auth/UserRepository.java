@@ -1,9 +1,6 @@
 package com.example.its.domain.auth;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +16,10 @@ public interface UserRepository {
 
     @Insert("INSERT INTO users (username, password, authority) VALUES (#{username}, #{password}, #{authority})")
     void insert(@Param("username") String username, @Param("password") String password, @Param("authority") String authority);
+
+    @Update("UPDATE users SET username = #{newUsername}, password = #{password}, authority = #{authority} WHERE username = #{targetUsername}")
+    void update(@Param("targetUsername") String targetUsername, @Param("newUsername") String newUsername, @Param("password") String password, @Param("authority") String authority);
+
+    @Delete("DELETE FROM users WHERE username = #{username}")
+    void delete(String username);
 }
