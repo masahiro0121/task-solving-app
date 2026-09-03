@@ -1,13 +1,13 @@
 # 課題管理アプリ
 
-React と Spring Boot で構築した課題管理システムです。  
+React と Spring Boot で構築した課題管理アプリです。  
 一般ユーザーと管理者ユーザーで適切な権限分離を行い、安全かつシンプルな進捗管理を実現しています。
 
 ---
 
 ## 画面イメージ
 
-_(ここにGIF画像やスクリーンショットのURLを掲載すると効果的です)_
+<img src="docs/screenshots/dashboard.png" alt="画面イメージ" width="600">
 
 ---
 
@@ -37,7 +37,9 @@ _(ここにGIF画像やスクリーンショットのURLを掲載すると効果
 2. **堅牢な二重制御**
    - **フロントエンド (React):** ログイン中の権限（`authority`）を判定し、`USER` 権限時には課題の「削除ボタン」および「ユーザー管理画面への遷移ボタン」を UI 上で非表示化。
    - **バックエンド (Spring Boot):** UI 側の制御だけに頼らず、API 層で `@PreAuthorize("hasAuthority('ADMIN')")` を付与し、不正な直接リクエストに対しても 403 Forbidden を返す二重のセキュリティを確保。
-3. **TypeScript による型安全な開発**
+3. **入力バリデーションの実施**
+   - ユーザー名の重複防止や、10文字以上のパスワード制約などのバリデーションルールを設定し、バックエンド側でデータの整合性と安全性を確保。
+4. **TypeScript による型安全な開発**
    - Props や API のレスポンス型を厳密に定義し、コンパイル時点でバグを検知できる堅牢なフロントエンド構成にしています。
 
 ---
@@ -49,12 +51,12 @@ _(ここにGIF画像やスクリーンショットのURLを掲載すると効果
 - React 18
 - TypeScript
 - Vite
-- Bootstrap 5 / HTML5 / CSS3
+- Bootstrap 5
 
 ### バックエンド
 
-- Java 17
-- Spring Boot 3
+- Java 21
+- Spring Boot 4.1.1
 - Spring Security
 - MyBatis
 
@@ -65,13 +67,62 @@ _(ここにGIF画像やスクリーンショットのURLを掲載すると効果
 
 ---
 
-## セットアップ・起動方法 (Docker)
+## データベース構造
 
-_(※Docker構成が完成した後に記述するセクションです)_
+### `issues` テーブル（課題管理）
+
+| カラム名      | 型           | 制約                        | 説明                                  |
+| :------------ | :----------- | :-------------------------- | :------------------------------------ |
+| `id`          | BIGINT       | PRIMARY KEY, AUTO_INCREMENT | ID                                    |
+| `summary`     | VARCHAR(256) | NOT NULL                    | 概要                                  |
+| `description` | VARCHAR(256) | NOT NULL                    | 詳細                                  |
+| `status`      | VARCHAR(256) | NOT NULL                    | ステータス（`TODO`, `DOING`, `DONE`） |
+
+### `users` テーブル（ユーザー管理）
+
+| カラム名    | 型                   | 制約                        | デフォルト | 説明                           |
+| :---------- | :------------------- | :-------------------------- | :--------- | :----------------------------- |
+| `id`        | BIGINT               | PRIMARY KEY, AUTO_INCREMENT | -          | ID                             |
+| `username`  | VARCHAR(50)          | NOT NULL, UNIQUE            | -          | ユーザー名                     |
+| `password`  | VARCHAR(500)         | NOT NULL                    | -          | BCryptハッシュ化済みパスワード |
+| `authority` | ENUM('ADMIN','USER') | NOT NULL                    | 'USER'     | 権限（`ADMIN` または `USER`）  |
+
+---
+
+## セットアップ・起動方法
+
+Docker Desktop がインストールされている環境であれば、以下のコマンドのみで全環境が立ち上がります。
 
 ### 1. リポジトリのクローン
 
 ```bash
-git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-cd your-repo-name
+git clone https://github.com/masahiro0121/task-solving-app.git
+cd task-solving-app
+```
+
+### 2. コンテナの起動
+
+```bash
+docker compose up -d
+```
+
+### 3. アプリケーションへのアクセス
+
+ブラウザで以下の URL にアクセスしてください。
+
+- http://localhost:5173
+
+### 4. 動作確認用アカウント
+
+| ユーザー名 | パスワード     | 権限    | 備考                           |
+| :--------- | :------------- | :------ | :----------------------------- |
+| `tom`      | `password1234` | `ADMIN` | 課題の削除・ユーザー管理が可能 |
+| `bob`      | `password1234` | `USER`  | 課題の参照・作成・編集が可能   |
+
+---
+
+## コンテナの停止方法
+
+```bash
+docker compose down
 ```
